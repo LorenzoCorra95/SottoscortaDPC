@@ -250,8 +250,7 @@ if st.button("Esegui analisi"):
                         cella.alignment = op.styles.Alignment(vertical="center", horizontal="center")
                     if riga_idx != 1 and c_idx == n_col + 1:
                         cella.value = f'=IFERROR(ROUND((AF{riga_idx}+Z{riga_idx}+S{riga_idx})/X{riga_idx},0),"")'
-            for col in range(1, 14):
-                foglio.column_dimensions[op.utils.get_column_letter(col)].hidden = True
+            foglio.column_dimensions.group("a","n",hidden=True)
 
         final_output = io.BytesIO()
         wb.save(final_output)
@@ -264,6 +263,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
