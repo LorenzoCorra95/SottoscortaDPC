@@ -11,12 +11,12 @@ st.title("📊 Analisi Sottoscorta - DPC")
 st.write("Carica tutti i file CSV richiesti:")
 
 # --- File uploader ---
-file_contratti = st.file_uploader("Contratti", type=["csv"])
-file_ordini = st.file_uploader("Ordini", type=["csv"])
-file_anag = st.file_uploader("Anagrafica", type=["csv"])
-file_carichi = st.file_uploader("Carichi", type=["csv"])
-file_sottoscorta = st.file_uploader("Sottoscorte/Fabbisogni", type=["csv"])
-file_carenze = st.file_uploader("Carenze", type=["csv"])
+file_contratti = st.file_uploader("Contratti", type=[".csv"])
+file_ordini = st.file_uploader("Ordini", type=[".csv"])
+file_anag = st.file_uploader("Anagrafica", type=[".csv"])
+file_carichi = st.file_uploader("Carichi", type=[".csv"])
+file_sottoscorta = st.file_uploader("Sottoscorte/Fabbisogni", type=[".csv"])
+file_carenze = st.file_uploader("Carenze", type=[".csv"])
 
 if st.button("Esegui analisi"):
     if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze]):
@@ -264,3 +264,4 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
