@@ -249,7 +249,7 @@ if st.button("Esegui analisi"):
                         cella.font = op.styles.Font(name="Calibri", size=12, bold=True)
                         cella.alignment = op.styles.Alignment(vertical="center", horizontal="center")
                     if riga_idx != 1 and c_idx == n_col + 1:
-                        cella.value = f'=IFERROR(ROUND((AG{riga_idx}+AA{riga_idx}+T{riga_idx})/Y{riga_idx},0),"")'
+                        cella.value = f'=IFERROR(ROUND((AF{riga_idx}+Z{riga_idx}+S{riga_idx})/X{riga_idx},0),"")'
             for col in range(1, 14):
                 foglio.column_dimensions[op.utils.get_column_letter(col)].hidden = True
 
@@ -264,6 +264,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
