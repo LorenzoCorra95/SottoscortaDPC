@@ -164,7 +164,7 @@ if st.button("Esegui analisi"):
             (~df_sott["Minsan"].isin(df_c["Minsan"]))
         ]
         Cat1 = ["IN ESAURIMENTO","GARA","ECONOMIA","DANNO","FUORI GARA","MAI CONTRATTUALIZZATO"]
-        df_sott["TipoProd"] = np.select(CategorieProdotto, Cat1)
+        df_sott["TipoProd"] = np.select(CategorieProdotto, Cat1,default="Altro")
         df_sott["Mepa"] = df_sott["Minsan"].apply(lambda x: "si" if x in Mepa else "no")
 
         # Funzione Accordo Quadro
@@ -264,4 +264,5 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
