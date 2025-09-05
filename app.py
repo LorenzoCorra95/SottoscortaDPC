@@ -236,6 +236,7 @@ if st.button("Esegui analisi"):
             n_col = foglio.max_column
             foglio.cell(1, n_col+1, value="Nuova Autonomia")
             contaR=1
+    
             for riga in foglio:
                 contaC=1
                 for cella in riga:
@@ -254,7 +255,7 @@ if st.button("Esegui analisi"):
                     contaC+=1
                 contaR+=1    
     
-        foglio.column_dimensions.group("a","n",hidden=True)
+            foglio.column_dimensions.group("a","n",hidden=True)
 
         final_output = io.BytesIO()
         wb.save(final_output)
@@ -267,6 +268,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
