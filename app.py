@@ -232,7 +232,6 @@ if st.button("Esegui analisi"):
         output.seek(0)
         wb = op.load_workbook(output)
         for foglio in wb:
-            foglio.delete_cols(1)
             n_col = foglio.max_column
             foglio.cell(1, n_col+1, value="Nuova Autonomia")
             contaR=1
@@ -268,6 +267,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
