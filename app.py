@@ -235,22 +235,25 @@ if st.button("Esegui analisi"):
             foglio.delete_cols(1)
             n_col = foglio.max_column
             foglio.cell(1, n_col+1, value="Nuova Autonomia")
-            for riga_idx, riga in enumerate(foglio.iter_rows(), start=1):
-                for c_idx, cella in enumerate(riga, start=1):
-                    cella.font = op.styles.Font(name="Calibri", size=12)
-                    cella.border = op.styles.borders.Border(
+            for riga in foglio:
+                contaC=1
+                for cella in riga:
+                    cella.font=op.styles.Font(name="Calibri", size=12)
+                    cella.border=op.styles.borders.Border(
                         top=op.styles.borders.Side(style='thin'),
                         left=op.styles.borders.Side(style='thin'),
                         right=op.styles.borders.Side(style='thin'),
-                        bottom=op.styles.borders.Side(style='thin')
-                    )
-                    cella.alignment = op.styles.Alignment(vertical="center")
-                    if riga_idx == 1:
-                        cella.font = op.styles.Font(name="Calibri", size=12, bold=True)
-                        cella.alignment = op.styles.Alignment(vertical="center", horizontal="center")
-                    if riga_idx != 1 and c_idx == n_col + 1:
-                        cella.value = f'=IFERROR(ROUND((AF{riga_idx}+Z{riga_idx}+S{riga_idx})/X{riga_idx},0),"")'
-            foglio.column_dimensions.group("a","n",hidden=True)
+                        bottom=op.styles.borders.Side(style='thin'))
+                    cella.alignment=op.styles.Alignment(vertical="center")
+                    if contaR==1:
+                        cella.font=op.styles.Font(name="Calibri", size=12, bold=True)
+                        cella.alignment=op.styles.Alignment(vertical="center",horizontal="center")
+                    if contaR!=1 and contaC==n_col+1:
+                        cella.value=f'=IFERROR(ROUND((AG{contaR}+AA{contaR}+T{contaR})/Y{contaR},0),"")'
+                    contaC+=1
+                contaR+=1    
+    
+        foglio.column_dimensions.group("a","n",hidden=True)
 
         final_output = io.BytesIO()
         wb.save(final_output)
@@ -263,6 +266,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
