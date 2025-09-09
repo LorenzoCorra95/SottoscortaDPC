@@ -18,8 +18,12 @@ file_carichi = st.file_uploader("Carichi", type=[".csv"])
 file_sottoscorta = st.file_uploader("Sottoscorte/Fabbisogni", type=[".csv"])
 file_carenze = st.file_uploader("Carenze", type=[".csv"])
 
+numero_gg_riordino=[i for i in range(50,76)]
+if st.select_box
+
 if st.button("Esegui analisi"):
-    if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze]):
+    if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze, 
+                    st.select_box("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)])
         st.error("⚠️ Devi caricare tutti i file CSV!")
     else:
         # --- Creazione DataFrame ---
@@ -30,6 +34,7 @@ if st.button("Esegui analisi"):
         df_sott = pd.read_csv(file_sottoscorta, sep=";", encoding="latin", dtype={"Minsan": str})
         df_carenze = pd.read_csv(file_carenze, sep=";", encoding="latin", dtype={"Minsan": str})
 
+        riordino= st.select_box("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)
         # --- Prodotti da escludere ---
         prodEscl = [
             "042494070","042494029","044924025","043208091","043208038","045183050","045183148","043443136","043443047",
@@ -199,7 +204,7 @@ if st.button("Esegui analisi"):
         df_sott.loc[df_sott["TipoProd"].isin(["GARA","DANNO","ECONOMIA","AQ"]), "QtaDaOrdinare"] = (
             df_sott.loc[df_sott["TipoProd"].isin(["GARA","DANNO","ECONOMIA","AQ"])].apply(
                 lambda x: int((75*x["CmgGruppoEq"]-(x["GiacenzaGruppoEq"]+x["DaCaricare"]))) 
-                if OrdineForn(x["Fornitore"]) >= 1 and x["Autonomia"] < 52 else 0,
+                if OrdineForn(x["Fornitore"]) >= 1 and x["Autonomia"] < riordino else 0,
                 axis=1
             )
         )
@@ -267,6 +272,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
