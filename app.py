@@ -18,11 +18,10 @@ file_carichi = st.file_uploader("Carichi", type=[".csv"])
 file_sottoscorta = st.file_uploader("Sottoscorte/Fabbisogni", type=[".csv"])
 file_carenze = st.file_uploader("Carenze", type=[".csv"])
 
-numero_gg_riordino=[i for i in range(50,76)]
+numero_gg_riordino=st.selectbox("Selezionare autonomia sotto la quale riordinare",[i for i in range(50,76)])
 
 if st.button("Esegui analisi"):
-    if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze, 
-                    st.selectbox("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)]):
+    if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze, numero_gg_riordino]):
         st.error("⚠️ Devi caricare tutti i file CSV!")
     else:
         # --- Creazione DataFrame ---
@@ -271,6 +270,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
