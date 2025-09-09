@@ -32,7 +32,6 @@ if st.button("Esegui analisi"):
         df_sott = pd.read_csv(file_sottoscorta, sep=";", encoding="latin", dtype={"Minsan": str})
         df_carenze = pd.read_csv(file_carenze, sep=";", encoding="latin", dtype={"Minsan": str})
 
-        riordino= st.selectbox("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)
         # --- Prodotti da escludere ---
         prodEscl = [
             "042494070","042494029","044924025","043208091","043208038","045183050","045183148","043443136","043443047",
@@ -270,6 +269,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
