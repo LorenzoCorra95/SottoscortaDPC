@@ -22,7 +22,7 @@ numero_gg_riordino=st.selectbox("Selezionare autonomia sotto la quale riordinare
 
 if st.button("Esegui analisi"):
     if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze, numero_gg_riordino]):
-        st.error("⚠️ Devi caricare tutti i file CSV!")
+        st.error("⚠️ Devi caricare tutti i file CSV e indicare l'autonomia!")
     else:
         # --- Creazione DataFrame ---
         df_c = pd.read_csv(file_contratti, sep=";", encoding="latin")
@@ -270,6 +270,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
