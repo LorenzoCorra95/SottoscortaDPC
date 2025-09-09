@@ -19,7 +19,6 @@ file_sottoscorta = st.file_uploader("Sottoscorte/Fabbisogni", type=[".csv"])
 file_carenze = st.file_uploader("Carenze", type=[".csv"])
 
 numero_gg_riordino=[i for i in range(50,76)]
-if st.select_box
 
 if st.button("Esegui analisi"):
     if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze, 
@@ -272,6 +271,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
