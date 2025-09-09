@@ -201,7 +201,7 @@ if st.button("Esegui analisi"):
         df_sott.loc[df_sott["TipoProd"].isin(["GARA","DANNO","ECONOMIA","AQ"]), "QtaDaOrdinare"] = (
             df_sott.loc[df_sott["TipoProd"].isin(["GARA","DANNO","ECONOMIA","AQ"])].apply(
                 lambda x: int((75*x["CmgGruppoEq"]-(x["GiacenzaGruppoEq"]+x["DaCaricare"]))) 
-                if OrdineForn(x["Fornitore"]) >= 1 and x["Autonomia"] < riordino else 0,
+                if OrdineForn(x["Fornitore"]) >= 1 and x["Autonomia"] < numero_gg_riordino else 0,
                 axis=1
             )
         )
@@ -269,6 +269,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
