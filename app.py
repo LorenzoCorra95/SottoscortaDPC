@@ -23,7 +23,7 @@ if st.select_box
 
 if st.button("Esegui analisi"):
     if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze, 
-                    st.select_box("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)])
+                    st.selectbox("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)])
         st.error("⚠️ Devi caricare tutti i file CSV!")
     else:
         # --- Creazione DataFrame ---
@@ -34,7 +34,7 @@ if st.button("Esegui analisi"):
         df_sott = pd.read_csv(file_sottoscorta, sep=";", encoding="latin", dtype={"Minsan": str})
         df_carenze = pd.read_csv(file_carenze, sep=";", encoding="latin", dtype={"Minsan": str})
 
-        riordino= st.select_box("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)
+        riordino= st.selectbox("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)
         # --- Prodotti da escludere ---
         prodEscl = [
             "042494070","042494029","044924025","043208091","043208038","045183050","045183148","043443136","043443047",
@@ -272,6 +272,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
