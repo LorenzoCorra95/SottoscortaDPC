@@ -22,7 +22,7 @@ numero_gg_riordino=[i for i in range(50,76)]
 
 if st.button("Esegui analisi"):
     if not all([file_contratti, file_ordini, file_anag, file_carichi, file_sottoscorta, file_carenze, 
-                    st.selectbox("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)])
+                    st.selectbox("Selezionare autonomia sotto la quale riordinare",numero_gg_riordino)]):
         st.error("⚠️ Devi caricare tutti i file CSV!")
     else:
         # --- Creazione DataFrame ---
@@ -271,6 +271,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
