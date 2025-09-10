@@ -220,7 +220,7 @@ if st.button("Esegui analisi"):
             ~df_sott["Minsan"].isin(df_c[df_c["StatoContratto"]=="Aperto"]["Minsan"])
                             ]
         Cat2=["APERTO","CHIUSO"]
-        df_sott["StatoRiga"] = np.select(CategorieProdotto, Cat2, default="Altro")
+        df_sott["StatoContratto"] = np.select(CategorieProdotto, Cat2, default="Altro")
 
         df_sott.info()
 
@@ -279,6 +279,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
