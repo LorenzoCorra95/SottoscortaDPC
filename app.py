@@ -171,13 +171,20 @@ if st.button("Esegui analisi"):
 
         # Funzione Accordo Quadro
         def AccordoQuadro(eq):
-            df_eq = df_sott[(df_sott["GruppoEq"]==eq) & (df_sott["TipoProd"]=="GARA")]
-            if len(df_eq) > 1:
-                minsan = df_eq["Minsan"].unique()
-                scadenzaContratti = ContValidi[(ContValidi["TipoContratto"]=='CONTRATTO DPC IN GARA') &
-                                               (ContValidi["Minsan"].isin(minsan))]["DataFin"].unique()
-                return "AQ" if len(scadenzaContratti) == 1 else ""
-            return ""
+            df=df_sott[(df_sott["GruppoEq"]==eq)&(df_sott["TipoProd"]=="GARA")]
+            if len(df)>1 and len(df["Fornitore"].unique())>1:
+                minsan=df["Minsan"].unique()
+                for val in minsan:
+                    if val.startswith("7"):
+                        return ""
+                scadenzaContratti=ContValidi[(ContValidi["TipoContratto"]=='CONTRATTO DPC IN GARA')& 
+                                             (ContValidi["Minsan"].isin(minsan))]["DataFin"].unique()
+                if len(scadenzaContratti)==1:
+                    return "AQ"
+                else:
+                    return ""
+            else:
+                return ""
         
         df_sott.loc[df_sott["TipoProd"]=="GARA", "AccordoQuadro"] = df_sott[df_sott["TipoProd"]=="GARA"]["GruppoEq"].apply(AccordoQuadro)
         df_sott["TipoProd"] = df_sott.apply(lambda x: "AQ" if x["AccordoQuadro"]=="AQ" else x["TipoProd"], axis=1)
