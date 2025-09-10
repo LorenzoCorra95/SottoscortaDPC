@@ -225,7 +225,10 @@ if st.button("Esegui analisi"):
         df_sott.info()
 
         # Ridimensiono il df sottoscorta
-        df_sott = df_sott.iloc[:, [5,6,7,8,9,10,11,12,13,14,15,16,17,18,0,1,26,21,22,27,28,29,30,19,23,20,24,33,31,32,35,25,34]]
+        intestazioni=["Minsan","Descrizione","Fornitore","GruppoEq","Conservazione","DaCaricare","Ordine","Data","Nota ordine","CmgProd","CmgGruppoEq","GiacenzaProd",
+              "GiacenzaGruppoEq","Autonomia","TipoProd","Mepa","StatoContratto","StatoRiga","QtaResidua","QtaDaOrdinare",]
+        indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
+        df_sott=df_sott.iloc[:,[5,6,7,8,9,10,11,12,13,14,15,16,17,18]+indiceInt]
         df_sott = df_sott.sort_values(by=["Fornitore","Descrizione","Conservazione","TipoProd"])
 
         df_sott_ord = df_sott[(df_sott["QtaDaOrdinare"]>0) & 
@@ -276,6 +279,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
