@@ -215,18 +215,18 @@ if st.button("Esegui analisi"):
         df_sott["QtaDaOrdinare"] = df_sott["QtaDaOrdinare"].fillna(0)
 
         # Stato riga
-        CategorieProdotto2 = [
-            df_sott["Minsan"].isin(ContAperti["Minsan"]),
-            ~df_sott["Minsan"].isin(ContAperti["Minsan"])
-        ]
-        Cat2 = ["RIGA APERTA", "RIGA CHIUSA"]
-        df_sott["StatoRiga"] = np.select(CategorieProdotto2, Cat2, default="Altro")
+        CategorieProdotto=[
+            df_sott["Minsan"].isin(df_c[df_c["StatoContratto"]=="Aperto"]["Minsan"]),
+            ~df_sott["Minsan"].isin(df_c[df_c["StatoContratto"]=="Aperto"]["Minsan"])
+                            ]
+        Cat2=["APERTO","CHIUSO"]
+        df_sott["StatoRiga"] = np.select(CategorieProdotto, Cat2, default="Altro")
 
         df_sott.info()
 
         # Ridimensiono il df sottoscorta
         intestazioni=["Minsan","Descrizione","Fornitore","GruppoEq","Conservazione","DaCaricare","Ordine","Data","Nota ordine","CmgProd","CmgGruppoEq","GiacenzaProd",
-              "GiacenzaGruppoEq","Autonomia","TipoProd","Mepa","StatoContratto","StatoRiga","QtaResidua","QtaDaOrdinare",]
+              "GiacenzaGruppoEq","Autonomia","TipoProd","Mepa","StatoContratto","QtaResidua","QtaDaOrdinare",]
         indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
         df_sott=df_sott.iloc[:,[5,6,7,8,9,10,11,12,13,14,15,16,17,18]+indiceInt]
         df_sott = df_sott.sort_values(by=["Fornitore","Descrizione","Conservazione","TipoProd"])
@@ -262,7 +262,7 @@ if st.button("Esegui analisi"):
                         cella.font=op.styles.Font(name="Calibri", size=12, bold=True)
                         cella.alignment=op.styles.Alignment(vertical="center",horizontal="center")
                     if contaR!=1 and contaC==n_col+1:
-                        cella.value=f'=IFERROR(ROUND((AH{contaR}+AA{contaR}+T{contaR})/Y{contaR},0),"")'
+                        cella.value=f'=IFERROR(ROUND((AG{contaR}+AA{contaR}+T{contaR})/Y{contaR},0),"")'
                     contaC+=1
                 contaR+=1    
     
@@ -279,6 +279,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
