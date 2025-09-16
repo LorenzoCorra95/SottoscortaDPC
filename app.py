@@ -153,8 +153,8 @@ if st.button("Esegui analisi"):
         df_sott["DaCaricare"] = df_sott["DaCaricare"].fillna(0)
         df_sott = pd.merge(df_sott, UltimoOrdPendente[["Minsan","Ordine","Data"]], on="Minsan", how="left")
         df_sott = pd.merge(df_sott, df_carenze, on="Minsan", how="left")
-        df_sott.loc[df_sott["GruppoEq"].isnull(), "CmgGruppoEq"] = df_sott["CmgProd"]
-        df_sott.loc[df_sott["GruppoEq"].isnull(), "GiacenzaGruppoEq"] = df_sott["GiacenzaProd"]
+        df_sott.loc[(df_sott["GruppoEq"].isnull())|(df_sott["GruppoEq"]=="0")|(df_sott["GruppoEq"]==0), "CmgGruppoEq"] = df_sott["CmgProd"]
+        df_sott.loc[(df_sott["GruppoEq"].isnull())|(df_sott["GruppoEq"]=="0")|(df_sott["GruppoEq"]==0), "GiacenzaGruppoEq"] = df_sott["GiacenzaProd"]
 
         # Categoria prodotto
         CategorieProdotto = [
@@ -279,6 +279,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
