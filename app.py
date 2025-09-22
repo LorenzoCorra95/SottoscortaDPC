@@ -8,7 +8,7 @@ import datetime as dt
 st.set_page_config(page_title="Analisi Sottoscorta DPC", layout="wide")
 st.title("📊 Analisi Sottoscorta - DPC")
 
-st.write("Carica tutti i file CSV richiesti:")dfdf
+st.write("Carica tutti i file CSV richiesti:")
 
 # --- File uploader ---
 file_contratti = st.file_uploader("Contratti", type=[".csv"])
@@ -227,7 +227,7 @@ if st.button("Esegui analisi"):
         Cat1=["IN ESAURIMENTO","DANNO"]
         
         # assegno le categorie ai prodotti non presenti in anagrafica
-        df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1)
+        df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1,default="non classificato")
         
         
         # per i record in cui il tipo prodotto è AQ riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
@@ -270,7 +270,7 @@ if st.button("Esegui analisi"):
             ]
         Cat2=["","APERTO","CHIUSO"]
         
-        df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2)
+        df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2,default="non classificato")
         
         
         df_sott.info()
@@ -334,6 +334,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
