@@ -92,40 +92,54 @@ if st.button("Esegui analisi"):
         df_carichi["Ordine"]="DPC-2025-" + df_carichi["Ordine"].str.slice(5).astype(int).astype(str)
 
         # sottoscorta
-        df_sott = df_sott.fillna("")
-        indici = []
+        df_sott=df_sott.fillna("")
+        indici=[]
         for i in range(2):
-            lista = df_sott.iloc[i].tolist()
+            lista=df_sott.iloc[i].tolist()
             indici.append(lista)
-        new_indice = []
+        
+        new_indice=[]
         for i in range(len(lista)):
-            val1 = str(indici[0][i])
-            val2 = str(indici[1][i])
-            if val1 == "":
+            val1=str(indici[0][i])
+            val2=str(indici[1][i])
+            if val1=="":
                 new_indice.append(val2)
-            elif val2 == "":
+            elif val2=="":
                 new_indice.append(val1)
             else:
-                new_indice.append(val1 + "-" + val2)
-        df_sott.columns = new_indice
+                new_indice.append(val1+"-"+val2)
+        
+        df_sott.columns=new_indice
         df_sott.drop(axis=0, index=[0,1], inplace=True)
         df_sott.replace("", np.nan, inplace=True)
         df_sott.dropna(axis=1, how='all', inplace=True)
-        df_sott = df_sott.iloc[:, [0,1,2,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,28,29]]
-        df_sott.rename(columns={"Domanda Media Giornaliera":"Cmg","Giacenza Totale":"Giacenza"}, inplace=True)
+        
+        df_sott.info()
+        df_sott=df_sott.iloc[:,[0,1,2,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,28]]
+        df_sott.rename(columns={
+            "Domanda Media Giornaliera":"Cmg",
+            "Giacenza Totale":"Giacenza"},inplace=True)
+        
         for val in ["Cmg","Giacenza"]:
-            df_sott[val] = df_sott[val].apply(lambda x: float(str(x).replace(",", ".")))
+            df_sott[val]=df_sott[val].apply(lambda x: float(x.replace(",",".")))
 
         # --- Sezione elaborazione df ---
         # ORDINI
-        df_o = df_o[(df_o["Stato"]!="Revocato") & (df_o["Qta"] != 0)]
-        carichiOrd = df_carichi.groupby(["Minsan","Ordine"])["Qta"].sum().reset_index()
-        df_o["QtaCaricata"] = pd.merge(df_o, carichiOrd, on=["Minsan","Ordine"], how="left", suffixes=["","Caricata"]).fillna(0)["QtaCaricata"].values
-        df_o["DaCaricare"] = df_o["Qta"] - df_o["QtaCaricata"]
-        OrdiniPendenti = df_o[df_o["DaCaricare"] > 0]
-        DaCaricare = OrdiniPendenti.groupby("Minsan")["DaCaricare"].sum().reset_index()
-        UltimoOrdPendente = OrdiniPendenti[["Minsan","Ordine","Data","Qta"]].sort_values(by=["Minsan","Data"], ascending=[True,False]).drop_duplicates(subset="Minsan")
-        ProdDanno = df_o[df_o["Autorizzazione"]=="DPC/2025/1-2"][["Minsan","Fornitore"]].drop_duplicates()
+               df_o=df_o[(df_o["Stato"]!="Revocato")&(df_o["Qta"]!=0)] # elimino gli ordini revocati e le righe con qta=0
+        
+        carichiOrd=df_carichi.groupby(["Minsan","Ordine"])["Qta"].sum().reset_index() # calcolo la qta caricata per minsan-ordine
+        
+        # aggiungo al df degli ordini l'informazione della qta caricata e di quella ancora da caricare
+        df_o["QtaCaricata"]=pd.merge(df_o,carichiOrd,on=["Minsan","Ordine"],how="left", suffixes=["","Caricata"]).fillna(0)["QtaCaricata"].values
+        df_o["DaCaricare"]=df_o["Qta"]-df_o["QtaCaricata"]
+        
+        OrdiniPendenti=df_o[df_o["DaCaricare"]>0] # ordini con carico parziale/non evasi
+        DaCaricare=OrdiniPendenti.groupby("Minsan")["DaCaricare"].sum().reset_index() # per ogni minsan calcolo la qta ancora da caricare
+        
+        # per ogni minsan individuo l'ultimo ordine ancora aperto
+        UltimoOrdPendente=OrdiniPendenti[["Minsan","Ordine","Data","Qta"]].sort_values(by=["Minsan","Data"],ascending=[True,False]).drop_duplicates(subset="Minsan")
+        
+        ProdDanno=df_o[df_o["Autorizzazione"]=="DPC/2025/1-2"][["Minsan","Fornitore"]].drop_duplicates() #ordini in danno
 
         # CONTRATTI
         ContAperti = df_c[(df_c["StatoRiga"]=="Aperto") & (df_c["StatoContratto"]=="Aperto")]
@@ -276,6 +290,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
