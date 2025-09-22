@@ -142,108 +142,135 @@ if st.button("Esegui analisi"):
         ProdDanno=df_o[df_o["Autorizzazione"]=="DPC/2025/1-2"][["Minsan","Fornitore"]].drop_duplicates() #ordini in danno
 
         # CONTRATTI
-        ContAperti = df_c[(df_c["StatoRiga"]=="Aperto") & (df_c["StatoContratto"]=="Aperto")]
-        DispProd = ContAperti.groupby("Minsan")["QtaResidua"].sum().reset_index()
-        ContValidi = df_c[df_c["DataFin"] >= pd.Timestamp.today().normalize()]
-        ContrattiOrdinati = df_c.sort_values(by=["Minsan","StatoContratto","Anno","Numero"], ascending=[True,True,False,False])
-        UltimoContratto = ContrattiOrdinati.drop_duplicates(subset="Minsan", keep="first")
-        UltimoContratto["TipoGara"] = UltimoContratto["Descrizione"].apply(lambda x: "MEPA" if "mepa" in str(x).lower() else "")
-        Mepa = UltimoContratto[UltimoContratto["TipoGara"]=="MEPA"]["Minsan"].unique()
-        ProdGara = UltimoContratto[(UltimoContratto["TipoContratto"]=='CONTRATTO DPC IN GARA') &
-                                   (UltimoContratto["Minsan"].isin(ContValidi["Minsan"]))]["Minsan"]
-        ProdEconomia = UltimoContratto[(UltimoContratto["TipoContratto"]=='CONTRATTI DPC IN ECONOMIA') &
-                                       (UltimoContratto["Minsan"].isin(ContValidi["Minsan"]))]["Minsan"]
-
-        # SOTTOSCORTA
-        GruppoEq = df_sott.groupby("GruppoEq")[["Cmg","Giacenza"]].sum().reset_index()
-        df_sott = pd.merge(df_sott, GruppoEq, on="GruppoEq", suffixes=["Prod","GruppoEq"], how="left")
-        df_sott = pd.merge(df_sott, DispProd, on="Minsan", how="left")
-        df_sott["QtaResidua"] = df_sott["QtaResidua"].fillna(0)
-        df_sott = pd.merge(df_sott, UltimoContratto[["Minsan", "Fornitore"]], on="Minsan", how="left")
-        df_sott = pd.merge(df_sott, DaCaricare, on="Minsan", how="left")
-        df_sott["DaCaricare"] = df_sott["DaCaricare"].fillna(0)
-        df_sott = pd.merge(df_sott, UltimoOrdPendente[["Minsan","Ordine","Data"]], on="Minsan", how="left")
-        df_sott = pd.merge(df_sott, df_carenze, on="Minsan", how="left")
-        df_sott.loc[(df_sott["GruppoEq"].isnull())|(df_sott["GruppoEq"]=="0")|(df_sott["GruppoEq"]==0), "CmgGruppoEq"] = df_sott["CmgProd"]
-        df_sott.loc[(df_sott["GruppoEq"].isnull())|(df_sott["GruppoEq"]=="0")|(df_sott["GruppoEq"]==0), "GiacenzaGruppoEq"] = df_sott["GiacenzaProd"]
-
-        # Categoria prodotto
-        CategorieProdotto = [
-            df_sott["Minsan"].isin(prodEscl),
-            (df_sott["Minsan"].isin(ProdGara)) & (df_sott["Minsan"].isin(ContValidi["Minsan"])),
-            (df_sott["Minsan"].isin(ProdEconomia)) & (df_sott["Minsan"].isin(ContValidi["Minsan"])),
-            (df_sott["Minsan"].isin(ProdDanno["Minsan"])),
-            (~df_sott["Minsan"].isin(ContValidi["Minsan"])) & (df_sott["Minsan"].isin(df_c["Minsan"])),
-            (~df_sott["Minsan"].isin(df_c["Minsan"]))
-        ]
-        Cat1 = ["IN ESAURIMENTO","GARA","ECONOMIA","DANNO","FUORI GARA","MAI CONTRATTUALIZZATO"]
-        df_sott["TipoProd"] = np.select(CategorieProdotto, Cat1, default="Altro")
-        df_sott["Mepa"] = df_sott["Minsan"].apply(lambda x: "si" if x in Mepa else "no")
-
-        # Funzione Accordo Quadro
-        def AccordoQuadro(eq):
-            df=df_sott[(df_sott["GruppoEq"]==eq)&(df_sott["TipoProd"]=="GARA")]
-            if len(df)>1 and len(df["Fornitore"].unique())>1:
-                minsan=df["Minsan"].unique()
-                for val in minsan:
-                    if val.startswith("7"):
-                        return ""
-                scadenzaContratti=ContValidi[(ContValidi["TipoContratto"]=='CONTRATTO DPC IN GARA')& 
-                                             (ContValidi["Minsan"].isin(minsan))]["DataFin"].unique()
-                if len(scadenzaContratti)==1:
-                    return "AQ"
-                else:
-                    return ""
-            else:
-                return ""
+        df_c=df_c.loc[df_c["Minsan"].isin(df_anag["Minsan"])]
+        ContAperti=df_c[(df_c["StatoRiga"]=="Aperto")&(df_c["StatoContratto"]=="Aperto")] # contratti aperti con riga aperta
+        DispProd=ContAperti.groupby("Minsan")["QtaResidua"].sum().reset_index() # per i contratti aperti con riga aperta calcolo la somma della qta disp per minsan
         
-        df_sott.loc[df_sott["TipoProd"]=="GARA", "AccordoQuadro"] = df_sott[df_sott["TipoProd"]=="GARA"]["GruppoEq"].apply(AccordoQuadro)
-        df_sott["TipoProd"] = df_sott.apply(lambda x: "AQ" if x["AccordoQuadro"]=="AQ" else x["TipoProd"], axis=1)
-        df_sott.drop("AccordoQuadro", axis=1, inplace=True)
-        df_sott.loc[df_sott["TipoProd"]=="AQ", "CmgGruppoEq"] = df_sott["CmgProd"]
-        df_sott.loc[df_sott["TipoProd"]=="AQ", "GiacenzaGruppoEq"] = df_sott["GiacenzaProd"]
-
-        df_sott["Autonomia"] = (df_sott["GiacenzaGruppoEq"] + df_sott["DaCaricare"]) / df_sott["CmgGruppoEq"]
-        df_sott["Autonomia"] = df_sott["Autonomia"].replace([np.inf, np.nan], 9999).astype(int)
-
-        df_sott.loc[df_sott["TipoProd"]=="DANNO", "Fornitore"] = pd.merge(
-            df_sott.loc[df_sott["TipoProd"]=="DANNO"],
-            ProdDanno,
+        
+        #SOTTOSCORTA
+        
+        GruppoEq=df_sott.groupby("GruppoEq")[["Cmg","Giacenza"]].sum().reset_index() # per ogni gruppo eq calcolo la somma di cmg e giacenza
+        
+        
+        # eseguo tutti i merge necessari per recuperare le info dagli altri df
+        df_sott=pd.merge(
+            df_sott,
+            GruppoEq,
+            on="GruppoEq",
+            suffixes=["Prod","GruppoEq"],
+            how="left")
+        
+        df_sott=pd.merge(
+            df_sott,
+            df_anag[["Minsan", "Pa","Fornitore","Frigo","TipoAcq","Gara"]],
+            on="Minsan",
+            how="left")
+        
+        df_sott=pd.merge(
+            df_sott,
+            DispProd,
+            on="Minsan",
+            how="left")
+        df_sott["QtaResidua"]=df_sott["QtaResidua"].fillna(0)
+        
+        
+        df_sott=pd.merge(
+            df_sott,
+            DaCaricare,
+            on="Minsan",
+            how="left")
+        
+        df_sott["DaCaricare"]=df_sott["DaCaricare"].fillna(0)
+        
+        df_sott=pd.merge(
+            df_sott,
+            UltimoOrdPendente[["Minsan","Ordine","Data"]],
             on="Minsan",
             how="left"
-        )["Fornitore_y"].values
-
-        def OrdineForn(forn):
-            return len(df_sott[(df_sott["Fornitore"]==forn) & (df_sott["Autonomia"] <= 45)])
-
-        df_sott.loc[df_sott["TipoProd"].isin(["GARA","DANNO","ECONOMIA","AQ"]), "QtaDaOrdinare"] = (
-            df_sott.loc[df_sott["TipoProd"].isin(["GARA","DANNO","ECONOMIA","AQ"])].apply(
-                lambda x: int((75*x["CmgGruppoEq"]-(x["GiacenzaGruppoEq"]+x["DaCaricare"]))) 
-                if OrdineForn(x["Fornitore"]) >= 1 and x["Autonomia"] < numero_gg_riordino else 0,
-                axis=1
             )
-        )
-        df_sott["QtaDaOrdinare"] = df_sott["QtaDaOrdinare"].fillna(0)
-
-        # Stato riga
+        
+        df_sott=pd.merge(
+            df_sott,
+            df_carenze,
+            on="Minsan",
+            how="left")
+        
+        
+        # per i record in cui il gruppo eq è nullo riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
+        df_sott.loc[df_sott["GruppoEq"].isnull(),"CmgGruppoEq"]=df_sott["CmgProd"]
+        df_sott.loc[df_sott["GruppoEq"].isnull(),"GiacenzaGruppoEq"]=df_sott["GiacenzaProd"] 
+        
+        # creo le categorie prodotto da assegnare a tutti i minsan non presenti in anagrafica
         CategorieProdotto=[
+            df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"])]["Minsan"].isin(prodEscl),
+            df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"])]["Minsan"].isin(ProdDanno["Minsan"]),
+            ~df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"])]["Minsan"].isin(df_c["Minsan"])
+            ]
+        
+        Cat1=["IN ESAURIMENTO","DANNO","FUORI GARA"]
+        
+        # assegno le categorie ai prodotti non presenti in anagrafica
+        df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1)
+        
+        
+        # per i record in cui il tipo prodotto è AQ riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
+        df_sott.loc[(df_sott["TipoAcq"]=="AQ_1")|(df_sott["TipoAcq"]=="AQ_2"),"CmgGruppoEq"]=df_sott["CmgProd"]
+        df_sott.loc[(df_sott["TipoAcq"]=="AQ_1")|(df_sott["TipoAcq"]=="AQ_2"),"GiacenzaGruppoEq"]=df_sott["GiacenzaProd"]
+        
+        
+        # per ogni prodotto calcolo l'attuale autonomia
+        df_sott["Autonomia"]=(df_sott["GiacenzaGruppoEq"]+df_sott["DaCaricare"])/df_sott["CmgGruppoEq"]
+        df_sott["Autonomia"]=df_sott["Autonomia"].fillna(9999)
+        df_sott.loc[df_sott["Autonomia"]==np.inf, "Autonomia"]=9999
+        df_sott["Autonomia"]=df_sott["Autonomia"].astype(int)
+        
+        # per i prodotti acquistati in danno recupero l'info del fornitore
+        df_sott.loc[df_sott["TipoAcq"]=="DANNO","Fornitore"]=pd.merge(
+            df_sott.loc[df_sott["TipoAcq"]=="DANNO"],
+            ProdDanno,
+            on="Minsan",
+            how="left")["Fornitore_y"].values
+        
+        #funzione per valutare, per ogni fornitore, se almeno un prodotto ha autonomia <= 45
+        def OrdineForn(forn):
+            df=df_sott[(df_sott["Fornitore"]==forn)&(df_sott["Autonomia"]<=45)]
+            return len(df)
+        
+        #applico la funzione solo ai tipi prodotto da ordinare
+        
+        df_sott.loc[df_sott["TipoAcq"].isin(["GARA","DANNO","ECONOMIA","AQ"]),"QtaDaOrdinare"]= (
+            df_sott.loc[df_sott["TipoAcq"].isin(["GARA","DANNO","ECONOMIA","AQ"])].apply(lambda x: int((75*x["CmgGruppoEq"]-(x["GiacenzaGruppoEq"]+x["DaCaricare"]))) if
+                                              OrdineForn(x["Fornitore"])>=1 and x["Autonomia"]<52 else 0, axis=1)
+            )
+        
+        df_sott["QtaDaOrdinare"]=df_sott["QtaDaOrdinare"].fillna(0)
+        
+        # seconda categoria prodotto per assegnare lo stato della riga contratto
+        CategorieProdotto=[
+            ~df_sott["Minsan"].isin(df_c["Minsan"]),
             df_sott["Minsan"].isin(df_c[df_c["StatoContratto"]=="Aperto"]["Minsan"]),
             ~df_sott["Minsan"].isin(df_c[df_c["StatoContratto"]=="Aperto"]["Minsan"])
-                            ]
-        Cat2=["APERTO","CHIUSO"]
-        df_sott["StatoContratto"] = np.select(CategorieProdotto, Cat2, default="Altro")
-
+            ]
+        Cat2=["","APERTO","CHIUSO"]
+        
+        df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2)
+        
+        
         df_sott.info()
-
-        # Ridimensiono il df sottoscorta
-        intestazioni=["Minsan","Descrizione","Fornitore","GruppoEq","Conservazione","DaCaricare","Ordine","Data","Nota ordine","CmgProd","CmgGruppoEq","GiacenzaProd",
-              "GiacenzaGruppoEq","Autonomia","TipoProd","Mepa","StatoContratto","QtaResidua","QtaDaOrdinare",]
+        
+        # ridimensiono il df del sottoscorta e creo il sub-df con l'info dei soli prodotti da oridnare
+        intestazioni=["Minsan","Descrizione","Fornitore","Pa","GruppoEq","Frigo","DaCaricare","Ordine","Data","Nota ordine","CmgProd","CmgGruppoEq","GiacenzaProd",
+                      "GiacenzaGruppoEq","Autonomia","TipoAcq","Gara","StatoContratto","QtaResidua","QtaDaOrdinare"]
+        
+        
         indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
+        
         df_sott=df_sott.iloc[:,[5,6,7,8,9,10,11,12,13,14,15,16,17,18]+indiceInt]
-        df_sott = df_sott.sort_values(by=["Fornitore","Descrizione","Conservazione","TipoProd"])
-
-        df_sott_ord = df_sott[(df_sott["QtaDaOrdinare"]>0) & 
-                              (df_sott["TipoProd"].isin(["GARA","AQ","ECONOMIA","DANNO"]))].sort_values(by=["Fornitore","Descrizione","Conservazione"])
+        
+        df_sott=df_sott.sort_values(by=["Fornitore","Descrizione","Frigo","TipoAcq"])
+        
+        df_sott_ord=df_sott[(df_sott["QtaDaOrdinare"]>0) & 
+                            (~df_sott["TipoAcq"].isin(["IN ESAURIMENTO","FUORI GARA"]))].sort_values(by=["Fornitore","Descrizione","Frigo"])
 
         # --- Salvataggio Excel in memoria ---
         output = io.BytesIO()
@@ -290,6 +317,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
