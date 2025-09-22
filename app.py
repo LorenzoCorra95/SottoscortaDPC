@@ -72,7 +72,7 @@ if st.button("Esegui analisi"):
         # sistemo il formato del df ordini
         df_o.info()
         df_o.insert(0,"Ordine","DPC-"+df_o["Anno"].astype(str)+"-"+df_o["Num."].astype(str))
-        df_o["Data ordine"]=pd.to_datetime(df_o["Data ordine"],format="%d/%m/%Y")
+        df_o["Data ordine"]=pd.to_datetime(df_o["Data ordine"])
         df_o=df_o.iloc[:,[0,6,8,9,14,15,16,19,22]]
         df_o.rename(columns={"Data ordine":"Data",
                              "Qta/Val Rettificata":"Qta",
@@ -326,6 +326,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
