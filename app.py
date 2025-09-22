@@ -91,7 +91,7 @@ if st.button("Esegui analisi"):
                               (df_carichi["Riferimento Ordine Carico"].str.len() == 9)]
         
         df_carichi=df_carichi.iloc[:,[0,1,5,2,3,4]].rename(columns={"Data Attività":"Data","Riferimento Ordine Carico":"Ordine",
-                                                                    "Qta Movimentata":"Qta"})
+                                                                    "Qta Movimentata":"QtaCaricata"})
         df_carichi["Ordine"]="DPC-2025-" + df_carichi["Ordine"].str.slice(5).astype(int).astype(str)
         
         # sistemo il formato del df sottoscorta
@@ -135,14 +135,14 @@ if st.button("Esegui analisi"):
         
         df_o=df_o[(df_o["Stato"]!="Revocato")&(df_o["Qta"]!=0)] # elimino gli ordini revocati e le righe con qta=0
         
-        carichiOrd=df_carichi.groupby(["Minsan","Ordine"])["Qta"].sum().reset_index() # calcolo la qta caricata per minsan-ordine
+        carichiOrd=df_carichi.groupby(["Minsan","Ordine"])["QtaCaricata"].sum().reset_index() # calcolo la qta caricata per minsan-ordine
         
         # aggiungo al df degli ordini l'informazione della qta caricata e di quella ancora da caricare
         df_o = df_o.merge(
-            carichiOrd[["Minsan", "Ordine", "Qta"]],
+            carichiOrd[["Minsan", "Ordine", "QtaCaricata"]],
             on=["Minsan", "Ordine"],
             how="left"
-        ).rename(columns={"Qta_x": "Qta","Qta_y":"QtaCaricata"})
+        ).reset_index()
 
         df_o["QtaCaricata"] = df_o["QtaCaricata"].fillna(0)
         df_o["DaCaricare"]=df_o["Qta"]-df_o["QtaCaricata"]
@@ -334,6 +334,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
