@@ -39,60 +39,57 @@ if st.button("Esegui analisi"):
             "043375029","046343113","046343253","046339089","046339026","046342085","046342022"
         ]
 
-        # --- Formati DataFrame ---
-        # anagrafica
-        df_anag = df_anag.iloc[:, [0,1,2,10]].rename(columns={"MinSan10": "Minsan"})
+        # Sezione formati df
 
-        # contratti
-        df_c = df_c.iloc[:, [0,1,2,3,4,5,6,8,9,10,11,22,23,24,26,27,37,38]]
-        for data in ["Validità dal", "Validità al"]:
-            df_c[data] = pd.to_datetime(df_c[data])
-        for val in ["Importo", "Prezzo"]:
-            df_c[val] = df_c[val].apply(lambda x: float(str(x).replace(",", ".")))
-        for val in ["Qta", "Qta Ordinato"]:
+        # sistemo il formato del df contratti
+        df_c=df_c.iloc[:,[0,1,2,3,4,5,6,8,9,10,11,22,23,24,26,27,37,38]]
+        
+        for data in ["Validità dal","Validità al"]:
+            df_c[data]=pd.to_datetime(df_c[data])
+        for val in ["Importo","Prezzo"]:
+            df_c[val]=df_c[val].apply(lambda x:float(x.replace(",",".")))
+        for val in ["Qta","Qta Ordinato"]:
             try:
-                df_c[val] = df_c[val].astype(int)
+                df_c[val]=df_c[val].astype(int)
             except:
-                df_c[val] = df_c[val].apply(lambda x: int(str(x).split(",")[0]))
-
-        Colonne = {
-            "Tipo contratto":"TipoContratto",
-            "Validità dal":"DataIn",
-            "Validità al":"DataFin",
-            "Stato":"StatoContratto",
-            "Codice CIG":"CIG",
-            "Descrizione CIG":"DescrizioneCIG",
-            "Stato Riga":"StatoRiga",
-            "Prodotto":"CodProd",
-            "Descr.":"Prodotto",
-            "Qta Ordinato":"QtaOrdinato"
-        }
-
-        df_c.rename(columns=Colonne, inplace=True)
-        df_c.insert(13, "Minsan", pd.merge(df_c["CodProd"], df_anag[["Codice","Minsan"]],
-                                           left_on="CodProd", right_on="Codice", how="left")["Minsan"])
-        df_c.insert(18, "QtaResidua", df_c["Qta"] - df_c["QtaOrdinato"])
-
-        # ordini
-        df_o.insert(0, "Ordine", "DPC-" + df_o["Anno"].astype(str) + "-" + df_o["Num."].astype(str))
-        df_o["Data ordine"] = pd.to_datetime(df_o["Data ordine"], format="%d/%m/%Y")
-        df_o = df_o.iloc[:, [0,6,8,9,14,15,16,19,22]]
-        df_o.rename(columns={"Data ordine":"Data","Qta/Val Rettificata":"Qta","Prezzo Unit.":"Prezzo"}, inplace=True)
-        df_o.insert(6, "Minsan", pd.merge(df_o["Prodotto"], df_anag[["Codice","Minsan"]],
-                                         left_on="Prodotto", right_on="Codice", how="left")["Minsan"])
+                df_c[val]=df_c[val].apply(lambda x: int(x[0:x.find(",")]) if x.find(",")>0 else int(x))
+        
+        Colonne={"Tipo contratto":"TipoContratto",
+                 "Validità dal":"DataIn",
+                 "Validità al":"DataFin",
+                 "Stato":"StatoContratto",
+                 "Codice CIG":"CIG",
+                 "Descrizione CIG":"DescrizioneCIG",
+                 "Stato Riga":"StatoRiga",
+                 "Prodotto":"CodProd",
+                 "Descr.":"Prodotto",
+                 "Qta Ordinato":"QtaOrdinato"}
+        
+        df_c.rename(columns=Colonne,inplace=True)
+        df_c.insert(13,"Minsan",pd.merge(df_c["CodProd"],df_anag[["CodAreas","Minsan"]],left_on="CodProd",right_on="CodAreas",how="left")["Minsan"])
+        df_c.insert(18,"QtaResidua",df_c["Qta"]-df_c["QtaOrdinato"])
+        
+        # sistemo il formato del df ordini
+        df_o.info()
+        df_o.insert(0,"Ordine","DPC-"+df_o["Anno"].astype(str)+"-"+df_o["Num."].astype(str))
+        df_o["Data ordine"]=pd.to_datetime(df_o["Data ordine"])
+        df_o=df_o.iloc[:,[0,6,8,9,14,15,16,19,22]]
+        df_o.rename(columns={"Data ordine":"Data",
+                             "Qta/Val Rettificata":"Qta",
+                             "Prezzo Unit.":"Prezzo"},inplace=True)
+        df_o.insert(6,"Minsan",pd.merge(df_o["Prodotto"],df_anag[["CodAreas","Minsan"]],left_on="Prodotto",right_on="CodAreas",how="left")["Minsan"])
 
         # carichi
-        df_carichi["Data Attività"] = pd.to_datetime(df_carichi["Data Attività"].str.slice(0,10), format="%d/%m/%Y")
-        df_carichi["Minsan"] = df_carichi["Prodotto"].str.slice(0,9)
-        df_carichi["Prodotto"] = df_carichi["Prodotto"].str.slice(12)
-        df_carichi = df_carichi[(~df_carichi["Riferimento Ordine Carico"].str.contains("DPC24")) &
-                                (df_carichi["Riferimento Ordine Carico"].str.len() == 9)]
-        df_carichi = df_carichi.iloc[:, [0,1,5,2,3,4]].rename(columns={
-            "Data Attività":"Data",
-            "Riferimento Ordine Carico":"Ordine",
-            "Qta Movimentata":"Qta"
-        })
-        df_carichi["Ordine"] = "DPC-2025-" + df_carichi["Ordine"].str.slice(5).astype(int).astype(str)
+        #sistemo il formato del df carichi
+        df_carichi["Data Attività"]=pd.to_datetime(df_carichi["Data Attività"].str.slice(0,10),format="%d/%m/%Y")
+        df_carichi["Minsan"]=df_carichi["Prodotto"].str.slice(0,9)
+        df_carichi["Prodotto"]=df_carichi["Prodotto"].str.slice(12)
+        df_carichi=df_carichi[(df_carichi["Riferimento Ordine Carico"].str.contains("DPC24")==False)&
+                              (df_carichi["Riferimento Ordine Carico"].str.len() == 9)]
+        
+        df_carichi=df_carichi.iloc[:,[0,1,5,2,3,4]].rename(columns={"Data Attività":"Data","Riferimento Ordine Carico":"Ordine",
+                                                                    "Qta Movimentata":"Qta"})
+        df_carichi["Ordine"]="DPC-2025-" + df_carichi["Ordine"].str.slice(5).astype(int).astype(str)
 
         # sottoscorta
         df_sott = df_sott.fillna("")
@@ -279,6 +276,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
