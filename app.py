@@ -74,7 +74,6 @@ if st.button("Esegui analisi"):
         df_c.insert(18,"QtaResidua",df_c["Qta"]-df_c["QtaOrdinato"])
         
         # sistemo il formato del df ordini
-        df_o.info()
         df_o.insert(0,"Ordine","DPC-"+df_o["Anno"].astype(str)+"-"+df_o["Num."].astype(str))
         df_o["Data ordine"]=pd.to_datetime(df_o["Data ordine"])
         df_o=df_o.iloc[:,[0,6,8,9,14,15,16,19,22,42]]
@@ -335,6 +334,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
