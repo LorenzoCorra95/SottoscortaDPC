@@ -138,16 +138,6 @@ if st.button("Esegui analisi"):
         carichiOrd=df_carichi.groupby(["Minsan","Ordine"])["QtaCaricata"].sum().reset_index() # calcolo la qta caricata per minsan-ordine
         
         # aggiungo al df degli ordini l'informazione della qta caricata e di quella ancora da caricare
-        st.write("Columns df_o:", df_o.columns.tolist())
-        st.write("Columns df_carichi:", df_carichi.columns.tolist())
-        
-        st.write("Sample df_o keys (first 10):")
-        st.write(df_o[["Minsan","Ordine"]].head(10))
-        st.write("Sample df_carichi keys (first 10):")
-        st.write(df_carichi[["Minsan","Ordine","QtaCaricata"]].head(10))
-        
-        st.write("dtypes df_o keys:", df_o[["Minsan","Ordine"]].dtypes.to_dict())
-        st.write("dtypes df_carichi keys:", df_carichi[["Minsan","Ordine"]].dtypes.to_dict())
         df_o = df_o.merge(carichiOrd, on=["Minsan", "Ordine"], how="left").reset_index()
 
         df_o["QtaCaricata"] = df_o["QtaCaricata"].fillna(0)
@@ -340,6 +330,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
