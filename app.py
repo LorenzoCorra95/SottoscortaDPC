@@ -8,7 +8,7 @@ import datetime as dt
 st.set_page_config(page_title="Analisi Sottoscorta DPC", layout="wide")
 st.title("📊 Analisi Sottoscorta - DPC")
 
-st.write("Carica tutti i file CSV richiesti:")
+st.write("Carica tutti i file CSV richiesti:")dfdf
 
 # --- File uploader ---
 file_contratti = st.file_uploader("Contratti", type=[".csv"])
@@ -334,6 +334,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
