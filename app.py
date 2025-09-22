@@ -139,7 +139,13 @@ if st.button("Esegui analisi"):
         carichiOrd=df_carichi.groupby(["Minsan","Ordine"])["Qta"].sum().reset_index() # calcolo la qta caricata per minsan-ordine
         
         # aggiungo al df degli ordini l'informazione della qta caricata e di quella ancora da caricare
-        df_o["QtaCaricata"]=pd.merge(df_o,carichiOrd,on=["Minsan","Ordine"],how="left", suffixes=["","Caricata"]).fillna(0)["QtaCaricata"].values
+        df_o = df_o.merge(
+            carichiOrd[["Minsan", "Ordine", "Qta"]],
+            on=["Minsan", "Ordine"],
+            how="left"
+        ).rename(columns={"Qta": "QtaCaricata"})
+
+        df_o["QtaCaricata"] = df_o["QtaCaricata"].fillna(0)
         df_o["DaCaricare"]=df_o["Qta"]-df_o["QtaCaricata"]
         
         OrdiniPendenti=df_o[df_o["DaCaricare"]>0] # ordini con carico parziale/non evasi
@@ -329,6 +335,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
