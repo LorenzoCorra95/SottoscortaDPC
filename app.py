@@ -27,7 +27,7 @@ if st.button("Esegui analisi"):
         # --- Creazione DataFrame ---
         df_c = pd.read_csv(file_contratti, sep=";", encoding="latin")
         df_o = pd.read_csv(file_ordini, sep=";", encoding="latin",dtype={"Cod.Prodotto/Fornitore":str})
-        df_anag = pd.read_csv(file_anag, sep=";", encoding="latin", dtype={"MinSan10": str})
+        df_anag = pd.read_csv(file_anag, sep=";", encoding="latin", dtype={"Minsan": str})
         df_carichi = pd.read_csv(file_carichi, sep=";", encoding="latin")
         df_sott = pd.read_csv(file_sottoscorta, sep=";", encoding="latin", dtype={"Minsan": str})
         df_carenze = pd.read_csv(file_carenze, sep=";", encoding="latin", dtype={"Minsan": str})
@@ -340,6 +340,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
