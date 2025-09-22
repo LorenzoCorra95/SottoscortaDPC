@@ -33,14 +33,18 @@ if st.button("Esegui analisi"):
         df_carenze = pd.read_csv(file_carenze, sep=";", encoding="latin", dtype={"Minsan": str})
 
         # --- Prodotti da escludere ---
-        prodEscl = [
-            "042494070","042494029","044924025","043208091","043208038","045183050","045183148","043443136","043443047",
-            "044229312","044229223","044229045","044229134","043145022","043145061","043375118","043375082","043375056",
-            "043375029","046343113","046343253","046339089","046339026","046342085","046342022"
-        ]
+        prodEscl=[
+        "042494070","042494029","044924025","043208091","043208038","045183050","045183148","043443136","043443047","044229312","044229223","044229045","044229134",
+        "043145022","043145061","043375118","043375082","043375056","043375029","046343113","046343253","046339089","046339026","046342085","046342022"
+    ]
 
+        # ----------------------------------------------------------------------------------------
         # Sezione formati df
-
+        
+        # sistemo il df dell'anagrafica
+        df_anag["Scadenza"].unique()
+        df_anag=df_anag[(df_anag["Scadenza"].isna()==False)&(df_anag["Scadenza"]!='01/01/1900')]
+        
         # sistemo il formato del df contratti
         df_c=df_c.iloc[:,[0,1,2,3,4,5,6,8,9,10,11,22,23,24,26,27,37,38]]
         
@@ -73,13 +77,13 @@ if st.button("Esegui analisi"):
         df_o.info()
         df_o.insert(0,"Ordine","DPC-"+df_o["Anno"].astype(str)+"-"+df_o["Num."].astype(str))
         df_o["Data ordine"]=pd.to_datetime(df_o["Data ordine"])
-        df_o=df_o.iloc[:,[0,6,8,9,14,15,16,19,22]]
+        df_o=df_o.iloc[:,[0,6,8,9,14,15,16,19,22,42]]
         df_o.rename(columns={"Data ordine":"Data",
                              "Qta/Val Rettificata":"Qta",
-                             "Prezzo Unit.":"Prezzo"},inplace=True)
-        df_o.insert(6,"Minsan",pd.merge(df_o["Prodotto"],df_anag[["CodAreas","Minsan"]],left_on="Prodotto",right_on="CodAreas",how="left")["Minsan"])
-
-        # carichi
+                             "Prezzo Unit.":"Prezzo",
+                             "Cod.Prodotto/Fornitore":"Minsan"},inplace=True)
+        
+        
         #sistemo il formato del df carichi
         df_carichi["Data Attività"]=pd.to_datetime(df_carichi["Data Attività"].str.slice(0,10),format="%d/%m/%Y")
         df_carichi["Minsan"]=df_carichi["Prodotto"].str.slice(0,9)
@@ -90,9 +94,11 @@ if st.button("Esegui analisi"):
         df_carichi=df_carichi.iloc[:,[0,1,5,2,3,4]].rename(columns={"Data Attività":"Data","Riferimento Ordine Carico":"Ordine",
                                                                     "Qta Movimentata":"Qta"})
         df_carichi["Ordine"]="DPC-2025-" + df_carichi["Ordine"].str.slice(5).astype(int).astype(str)
-
-        # sottoscorta
+        
+        # sistemo il formato del df sottoscorta
         df_sott=df_sott.fillna("")
+        
+        
         indici=[]
         for i in range(2):
             lista=df_sott.iloc[i].tolist()
@@ -122,9 +128,12 @@ if st.button("Esegui analisi"):
         
         for val in ["Cmg","Giacenza"]:
             df_sott[val]=df_sott[val].apply(lambda x: float(x.replace(",",".")))
-
-        # --- Sezione elaborazione df ---
+        
+        # ----------------------------------------------------------------------------------------
+        # Sezione elaborazione df
+        
         # ORDINI
+        
         df_o=df_o[(df_o["Stato"]!="Revocato")&(df_o["Qta"]!=0)] # elimino gli ordini revocati e le righe con qta=0
         
         carichiOrd=df_carichi.groupby(["Minsan","Ordine"])["Qta"].sum().reset_index() # calcolo la qta caricata per minsan-ordine
@@ -140,8 +149,12 @@ if st.button("Esegui analisi"):
         UltimoOrdPendente=OrdiniPendenti[["Minsan","Ordine","Data","Qta"]].sort_values(by=["Minsan","Data"],ascending=[True,False]).drop_duplicates(subset="Minsan")
         
         ProdDanno=df_o[df_o["Autorizzazione"]=="DPC/2025/1-2"][["Minsan","Fornitore"]].drop_duplicates() #ordini in danno
-
+        
+        
         # CONTRATTI
+        
+        # Tipo Contratti -> ['CONTRATTO DPC IN GARA', 'CONTRATTI DPC IN ECONOMIA']
+        # Filtro il df dei contratti per i soli minsan presenti in anagrafica
         df_c=df_c.loc[df_c["Minsan"].isin(df_anag["Minsan"])]
         ContAperti=df_c[(df_c["StatoRiga"]=="Aperto")&(df_c["StatoContratto"]=="Aperto")] # contratti aperti con riga aperta
         DispProd=ContAperti.groupby("Minsan")["QtaResidua"].sum().reset_index() # per i contratti aperti con riga aperta calcolo la somma della qta disp per minsan
@@ -202,15 +215,14 @@ if st.button("Esegui analisi"):
         
         # creo le categorie prodotto da assegnare a tutti i minsan non presenti in anagrafica
         CategorieProdotto=[
-            df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"])]["Minsan"].isin(prodEscl),
-            df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"])]["Minsan"].isin(ProdDanno["Minsan"]),
-            ~df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"])]["Minsan"].isin(df_c["Minsan"])
+            df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"])]["Minsan"].isin(prodEscl),
+            df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"])]["Minsan"].isin(ProdDanno["Minsan"])
             ]
         
-        Cat1=["IN ESAURIMENTO","DANNO","FUORI GARA"]
+        Cat1=["IN ESAURIMENTO","DANNO"]
         
         # assegno le categorie ai prodotti non presenti in anagrafica
-        df_sott.loc[~df_sott["Minsan"].isin(df_c["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1)
+        df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1)
         
         
         # per i record in cui il tipo prodotto è AQ riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
@@ -300,7 +312,7 @@ if st.button("Esegui analisi"):
                         cella.font=op.styles.Font(name="Calibri", size=12, bold=True)
                         cella.alignment=op.styles.Alignment(vertical="center",horizontal="center")
                     if contaR!=1 and contaC==n_col+1:
-                        cella.value=f'=IFERROR(ROUND((AG{contaR}+AA{contaR}+T{contaR})/Y{contaR},0),"")'
+                        cella.value=f'=IFERROR(ROUND((Ai{contaR}+Ac{contaR}+v{contaR})/Y{contaR},0),"")'
                     contaC+=1
                 contaR+=1    
     
@@ -317,6 +329,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
