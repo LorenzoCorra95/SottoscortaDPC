@@ -142,7 +142,7 @@ if st.button("Esegui analisi"):
             carichiOrd[["Minsan", "Ordine", "Qta"]],
             on=["Minsan", "Ordine"],
             how="left"
-        ).rename(columns={"Qta": "QtaCaricata"})
+        ).rename(columns={"Qta_x": "Qta","Qta_y":"QtaCaricata"})
 
         df_o["QtaCaricata"] = df_o["QtaCaricata"].fillna(0)
         df_o["DaCaricare"]=df_o["Qta"]-df_o["QtaCaricata"]
@@ -334,6 +334,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
