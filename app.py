@@ -120,7 +120,7 @@ if st.button("Esegui analisi"):
         df_sott.dropna(axis=1, how='all', inplace=True)
         
         df_sott.info()
-        df_sott=df_sott.iloc[:,[0,1,2,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,28]]
+        df_sott=df_sott.iloc[:,[0,1,2,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,28,29]]
         df_sott.rename(columns={
             "Domanda Media Giornaliera":"Cmg",
             "Giacenza Totale":"Giacenza"},inplace=True)
@@ -163,14 +163,14 @@ if st.button("Esegui analisi"):
         
         #SOTTOSCORTA
         
-        GruppoEq=df_sott.groupby("GruppoEq")[["Cmg","Giacenza"]].sum().reset_index() # per ogni gruppo eq calcolo la somma di cmg e giacenza
+        GruppoEq=df_sott.groupby(["GruppoEq","ViaSommNe"])[["Cmg","Giacenza"]].sum().reset_index() # per ogni gruppo eq e via di somm.ne calcolo la somma di cmg e giacenza
         
         
         # eseguo tutti i merge necessari per recuperare le info dagli altri df
         df_sott=pd.merge(
             df_sott,
             GruppoEq,
-            on="GruppoEq",
+            on= ["GruppoEq","ViaSommNe"],
             suffixes=["Prod","GruppoEq"],
             how="left")
         
@@ -313,7 +313,7 @@ if st.button("Esegui analisi"):
                         cella.font=op.styles.Font(name="Calibri", size=12, bold=True)
                         cella.alignment=op.styles.Alignment(vertical="center",horizontal="center")
                     if contaR!=1 and contaC==n_col+1:
-                        cella.value=f'=IFERROR(ROUND((AH{contaR}+AB{contaR}+U{contaR})/Z{contaR},0),"")'
+                        cella.value=f'=IFERROR(ROUND((AH{contaR}+AA{contaR}+U{contaR})/Y{contaR},0),"")'
                     contaC+=1
                 contaR+=1    
     
@@ -330,8 +330,6 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
-
 
 
 
