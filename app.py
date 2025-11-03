@@ -43,7 +43,7 @@ if st.button("Esegui analisi"):
         
         # sistemo il df dell'anagrafica
         df_anag["Scadenza"].unique()
-        df_anag=df_anag[(df_anag["Scadenza"].isna()==False)&(df_anag["Scadenza"]!='01/01/1900')]
+        df_anag=df_anag[(df_anag["Scadenza"].isna()==False)&(df_anag["Scadenza"]!='01/01/1900')&(df_anag["Note"]!="Escludere")]
         
         # sistemo il formato del df contratti
         df_c=df_c.iloc[:,[0,1,2,3,4,5,6,8,9,10,11,22,23,24,26,27,37,38]]
@@ -74,8 +74,9 @@ if st.button("Esegui analisi"):
         df_c.insert(18,"QtaResidua",df_c["Qta"]-df_c["QtaOrdinato"])
         
         # sistemo il formato del df ordini
+        df_o.info()
         df_o.insert(0,"Ordine","DPC-"+df_o["Anno"].astype(str)+"-"+df_o["Num."].astype(str))
-        df_o["Data ordine"]=pd.to_datetime(df_o["Data ordine"])
+        df_o["Data ordine"]=pd.to_datetime(df_o["Data ordine"],dayfirst=True).dt.date
         df_o=df_o.iloc[:,[0,6,8,9,14,15,16,19,22,42]]
         df_o.rename(columns={"Data ordine":"Data",
                              "Qta/Val Rettificata":"Qta",
@@ -138,8 +139,13 @@ if st.button("Esegui analisi"):
         carichiOrd=df_carichi.groupby(["Minsan","Ordine"])["QtaCaricata"].sum().reset_index() # calcolo la qta caricata per minsan-ordine
         
         # aggiungo al df degli ordini l'informazione della qta caricata e di quella ancora da caricare
-        df_o = df_o.merge(carichiOrd, on=["Minsan", "Ordine"], how="left").reset_index()
-
+        carichiOrd.info()
+        df_o = df_o.merge(
+                    carichiOrd[["Minsan", "Ordine", "QtaCaricata"]],
+                    on=["Minsan", "Ordine"],
+                    how="left"
+                ).reset_index()
+        
         df_o["QtaCaricata"] = df_o["QtaCaricata"].fillna(0)
         df_o["DaCaricare"]=df_o["Qta"]-df_o["QtaCaricata"]
         
@@ -209,7 +215,7 @@ if st.button("Esegui analisi"):
             on="Minsan",
             how="left")
         
-        
+        df_sott["Nota ordine"]=df_sott.apply(lambda x: "" if x["DaCaricare"]==0 else x["Nota ordine"],axis=1)
         # per i record in cui il gruppo eq è nullo riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
         df_sott.loc[df_sott["GruppoEq"].isnull(),"CmgGruppoEq"]=df_sott["CmgProd"]
         df_sott.loc[df_sott["GruppoEq"].isnull(),"GiacenzaGruppoEq"]=df_sott["GiacenzaProd"] 
@@ -223,7 +229,7 @@ if st.button("Esegui analisi"):
         Cat1=["IN ESAURIMENTO","DANNO"]
         
         # assegno le categorie ai prodotti non presenti in anagrafica
-        df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1,default="non classificato")
+        df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1)
         
         
         # per i record in cui il tipo prodotto è AQ riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
@@ -251,10 +257,10 @@ if st.button("Esegui analisi"):
         
         #applico la funzione solo ai tipi prodotto da ordinare
         
-        df_sott.loc[df_sott["TipoAcq"].isin(["GARA","DANNO","ECONOMIA","AQ"]),"QtaDaOrdinare"]= (
-            df_sott.loc[df_sott["TipoAcq"].isin(["GARA","DANNO","ECONOMIA","AQ"])].apply(lambda x: int((75*x["CmgGruppoEq"]-(x["GiacenzaGruppoEq"]+x["DaCaricare"]))) if
+        df_sott.loc[df_sott["Fornitore"] != "", "QtaDaOrdinare"]= \
+            df_sott.loc[df_sott["Fornitore"] != ""].apply(lambda x: int((75*x["CmgGruppoEq"]-(x["GiacenzaGruppoEq"]+x["DaCaricare"]))) if
                                               OrdineForn(x["Fornitore"])>=1 and x["Autonomia"]<52 else 0, axis=1)
-            )
+            
         
         df_sott["QtaDaOrdinare"]=df_sott["QtaDaOrdinare"].fillna(0)
         
@@ -266,7 +272,7 @@ if st.button("Esegui analisi"):
             ]
         Cat2=["","APERTO","CHIUSO"]
         
-        df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2,default="non classificato")
+        df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2)
         
         
         df_sott.info()
@@ -313,7 +319,7 @@ if st.button("Esegui analisi"):
                         cella.font=op.styles.Font(name="Calibri", size=12, bold=True)
                         cella.alignment=op.styles.Alignment(vertical="center",horizontal="center")
                     if contaR!=1 and contaC==n_col+1:
-                        cella.value=f'=IFERROR(ROUND((AH{contaR}+AA{contaR}+U{contaR})/Y{contaR},0),"")'
+                        cella.value=f'=IFERROR(ROUND((AH{contaR}+AB{contaR}+U{contaR})/Z{contaR},0),"")'
                     contaC+=1
                 contaR+=1    
     
@@ -330,6 +336,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
