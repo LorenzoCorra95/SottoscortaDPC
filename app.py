@@ -229,7 +229,7 @@ if st.button("Esegui analisi"):
         Cat1=["IN ESAURIMENTO","DANNO"]
         
         # assegno le categorie ai prodotti non presenti in anagrafica
-        df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1)
+        df_sott.loc[~df_sott["Minsan"].isin(df_anag["Minsan"]),"TipoAcq"]=np.select(CategorieProdotto,Cat1,default="non classificato")
         
         
         # per i record in cui il tipo prodotto è AQ riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
@@ -272,7 +272,7 @@ if st.button("Esegui analisi"):
             ]
         Cat2=["","APERTO","CHIUSO"]
         
-        df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2)
+        df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2,default="non classificato")
         
         
         df_sott.info()
@@ -336,6 +336,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
