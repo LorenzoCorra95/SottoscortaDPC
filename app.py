@@ -40,6 +40,9 @@ if st.button("Esegui analisi"):
 
         # ----------------------------------------------------------------------------------------
         # Sezione formati df
+
+        # sistemo il df delle carenze
+        df_carenze["Minsan"]=df_carenze["Minsan"].astype(str).str.zfille(9)
         
         # sistemo il df dell'anagrafica
         df_anag["Scadenza"].unique()
@@ -337,6 +340,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
