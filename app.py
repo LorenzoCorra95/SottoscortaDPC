@@ -44,7 +44,8 @@ if st.button("Esegui analisi"):
         # sistemo il df dell'anagrafica
         df_anag["Scadenza"].unique()
         df_anag=df_anag[(df_anag["Scadenza"].isna()==False)&(df_anag["Scadenza"]!='01/01/1900')&(df_anag["Note"]!="Escludere")]
-        df_anag["Minsan"]=df_anag["Minsan"].astype(str).zfill(9)
+        
+        
         # sistemo il formato del df contratti
         df_c=df_c.iloc[:,[0,1,2,3,4,5,6,8,9,10,11,22,23,24,26,27,37,38]]
         
@@ -336,6 +337,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
