@@ -95,9 +95,13 @@ if st.button("Esegui analisi"):
         df_carichi=df_carichi[(df_carichi["Riferimento Ordine Carico"].str.contains("DPC24")==False)&
                               (df_carichi["Riferimento Ordine Carico"].str.len() == 9)]
         
-        df_carichi=df_carichi.iloc[:,[0,1,5,2,3,4]].rename(columns={"Data Attività":"Data","Riferimento Ordine Carico":"Ordine",
+        df_carichi=df_carichi.iloc[:,[0,1,5,2,3,4]].rename(columns={"Data Attività":"Data","Riferimento Ordine Carico":"Ordine",                                                           
                                                                     "Qta Movimentata":"QtaCaricata"})
-        df_carichi["Ordine"]="DPC-2025-" + df_carichi["Ordine"].str.slice(5).astype(int).astype(str)
+
+        def anno(ordine):
+            return "DPC-20" + ordine.str.slice(3,5) + "-" + str(int(ordine.str.slice(5)))
+            
+        df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: anno(x))
         
         # sistemo il formato del df sottoscorta
         df_sott=df_sott.fillna("")
@@ -340,6 +344,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
