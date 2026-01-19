@@ -98,8 +98,6 @@ if st.button("Esegui analisi"):
         df_carichi=df_carichi.iloc[:,[0,1,5,2,3,4]].rename(columns={"Data Attività":"Data","Riferimento Ordine Carico":"Ordine",                                                           
                                                                     "Qta Movimentata":"QtaCaricata"})
 
-        def anno(ordine):
-            return "DPC-20" + ordine.slice(3,5) + "-" + str(int(ordine.slice(5)))
             
         df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: "DPC-20" + x[3,5] + "-" + str(int(x[5:])))
         
@@ -344,6 +342,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
