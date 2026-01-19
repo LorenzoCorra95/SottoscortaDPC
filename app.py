@@ -101,7 +101,6 @@ if st.button("Esegui analisi"):
         
         # sistemo il formato del df sottoscorta
         df_sott=df_sott.fillna("")
-        df_sott["Minsan"]=df_sott["Minsan"].str.zfill(9)
         
         indici=[]
         for i in range(2):
@@ -129,7 +128,8 @@ if st.button("Esegui analisi"):
         df_sott.rename(columns={
             "Domanda Media Giornaliera":"Cmg",
             "Giacenza Totale":"Giacenza"},inplace=True)
-        
+
+        df_sott["Minsan"]=df_sott["Minsan"].str.zfill(9)
         for val in ["Cmg","Giacenza"]:
             df_sott[val]=df_sott[val].apply(lambda x: float(x.replace(",",".")))
         
@@ -340,6 +340,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
