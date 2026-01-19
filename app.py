@@ -101,7 +101,7 @@ if st.button("Esegui analisi"):
         def anno(ordine):
             return "DPC-20" + ordine.slice(3,5) + "-" + str(int(ordine.slice(5)))
             
-        df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: anno(x))
+        df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: "DPC-20" + x[3,5] + "-" + str(int(x[5:])))
         
         # sistemo il formato del df sottoscorta
         df_sott=df_sott.fillna("")
@@ -344,6 +344,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
