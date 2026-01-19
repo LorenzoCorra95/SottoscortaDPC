@@ -99,7 +99,7 @@ if st.button("Esegui analisi"):
                                                                     "Qta Movimentata":"QtaCaricata"})
 
             
-        df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: "DPC-20" + x[3,5] + "-" + str(int(x[5:])))
+        df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: "DPC-20" + x[3:5] + "-" + str(int(x[5:])))
         
         # sistemo il formato del df sottoscorta
         df_sott=df_sott.fillna("")
@@ -342,6 +342,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
