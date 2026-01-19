@@ -99,7 +99,7 @@ if st.button("Esegui analisi"):
                                                                     "Qta Movimentata":"QtaCaricata"})
 
         def anno(ordine):
-            return "DPC-20" + ordine.str.slice(3,5) + "-" + str(int(ordine.str.slice(5)))
+            return "DPC-20" + ordine.slice(3,5) + "-" + str(int(ordine.slice(5)))
             
         df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: anno(x))
         
@@ -344,6 +344,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
