@@ -86,7 +86,7 @@ if st.button("Esegui analisi"):
                              "Qta/Val Rettificata":"Qta",
                              "Prezzo Unit.":"Prezzo",
                              "Cod.Prodotto/Fornitore":"Minsan"},inplace=True)
-        
+        df_o["Minsan"]=df_o["Minsan"].str.zfill(9)
         
         #sistemo il formato del df carichi
         df_carichi["Data Attività"]=pd.to_datetime(df_carichi["Data Attività"].str.slice(0,10),format="%d/%m/%Y")
@@ -340,6 +340,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
