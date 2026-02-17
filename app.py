@@ -239,8 +239,8 @@ if st.button("Esegui analisi"):
         
         
         # per i record in cui il tipo prodotto è AQ riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
-        df_sott.loc[(df_sott["TipoAcq"]=="AQ_1")|(df_sott["TipoAcq"]=="AQ_2"),"CmgGruppoEq"]=df_sott["CmgProd"]
-        df_sott.loc[(df_sott["TipoAcq"]=="AQ_1")|(df_sott["TipoAcq"]=="AQ_2"),"GiacenzaGruppoEq"]=df_sott["GiacenzaProd"]
+        df_sott.loc[df_sott["TipoAcq"].str.contains("AQ"),"CmgGruppoEq"]=df_sott["CmgProd"]
+        df_sott.loc[df_sott["TipoAcq"].str.contains("AQ"),"GiacenzaGruppoEq"]=df_sott["GiacenzaProd"]
         
         
         # per ogni prodotto calcolo l'attuale autonomia
@@ -342,6 +342,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
