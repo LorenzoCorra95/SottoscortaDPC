@@ -301,11 +301,13 @@ if st.button("Esegui analisi"):
         # ridimensiono il df del sottoscorta e creo il sub-df con l'info dei soli prodotti da oridnare
         intestazioni=["Minsan","Descrizione","Fornitore","Pa","GruppoEq","Frigo","DaCaricare","Ordine","Data","Nota ordine","CmgProd","CmgGruppoEq","GiacenzaProd",
                       "GiacenzaGruppoEq","Autonomia","TipoAcq","Gara","StatoContratto","QtaResidua","QtaDaOrdinare"]
-        
+
+        pre_intestazioni=[col for col in df_sott.columns if col not in intestazioni]
         
         indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
+        indicePreInt[indice for indice in [df_sott.columns.get_loc(i) for i in pre_intestazioni]
         
-        df_sott=df_sott.iloc[:,[5,6,7,8,9,10,11,12,13,14,15,16,17,18]+indiceInt]
+        df_sott=df_sott.iloc[:,indicePreInt+indiceInt]
         
         df_sott=df_sott.sort_values(by=["Fornitore","Descrizione","Frigo","TipoAcq"])
         
@@ -357,6 +359,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
