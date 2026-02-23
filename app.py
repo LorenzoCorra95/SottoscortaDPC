@@ -32,16 +32,16 @@ if st.button("Esegui analisi"):
         df_carichi = pd.read_csv(file_carichi, sep=";", encoding="latin")
         df_sott = pd.read_csv(file_sottoscorta, sep=";", encoding="latin", dtype={"Minsan": str})
         df_carenze = pd.read_csv(file_carenze, sep=";", encoding="latin", dtype={"Minsan": str})
-
+        
         # --- Prodotti da escludere ---
         prodEscl=[
         "042494070","042494029","044924025","043208091","043208038","045183050","045183148","043443136","043443047","044229312","044229223","044229045","044229134",
         "043145022","043145061","043375118","043375082","043375056","043375029","046343113","046343253","046339089","046339026","046342085","046342022"
-    ]
-
+        ]
+        
         # ----------------------------------------------------------------------------------------
         # Sezione formati df
-
+        
         # sistemo il df delle carenze
         df_carenze["Minsan"]=df_carenze["Minsan"].astype(str).str.zfill(9)
         
@@ -98,7 +98,7 @@ if st.button("Esegui analisi"):
         
         df_carichi=df_carichi.iloc[:,[0,1,5,2,3,4]].rename(columns={"Data Attività":"Data","Riferimento Ordine Carico":"Ordine",                                                           
                                                                     "Qta Movimentata":"QtaCaricata"})
-
+        
             
         df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: "DPC-20" + x[3:5] + "-" + str(int(x[5:])))
         
@@ -393,6 +393,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
