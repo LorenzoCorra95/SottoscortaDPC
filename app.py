@@ -307,7 +307,8 @@ if st.button("Esegui analisi"):
         indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
         indicePreInt=[indice for indice in [df_sott.columns.get_loc(i) for i in pre_intestazioni]]
         
-        df_sott=df_sott.iloc[:,indicePreInt+indiceInt]
+        df_sott=df_sott.iloc[:,indicePreInt+indiceInt].drop(["Forma Farmaceutica","Unità posologiche","ViaSommNe"],axis=1)
+
         
         df_sott=df_sott.sort_values(by=["Fornitore","Descrizione","Frigo","TipoAcq"])
         
@@ -359,6 +360,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
