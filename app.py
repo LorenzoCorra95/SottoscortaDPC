@@ -138,9 +138,6 @@ if st.button("Esegui analisi"):
             'Data StockOut Prevista',
             'Data Ordine Prevista',
             'Q.tà da Ordinare',
-            "Forma Farmaceutica",
-            "Unità posologiche",
-            "ViaSommNe",
             col_el]
 
         df_sott=df_sott.drop(elimina_indice,axis=1)
@@ -314,10 +311,11 @@ if st.button("Esegui analisi"):
         # df_sott=df_sott.drop(["Forma Farmaceutica","Unità posologiche","ViaSommNe"],axis=1)
         
         df_sott=df_sott.sort_values(by=["Fornitore","Descrizione","Frigo","TipoAcq"])
+        df_sott=df_sott.drop(["Forma Farmaceutica", "Unità posologiche", "ViaSommNe"],axis=1)
         
         df_sott_ord=df_sott[(df_sott["QtaDaOrdinare"]>0) & 
                             (~df_sott["TipoAcq"].isin(["IN ESAURIMENTO","FUORI GARA"]))].sort_values(by=["Fornitore","Descrizione","Frigo"])
-
+    
         # --- Salvataggio Excel in memoria ---
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine="openpyxl") as ex:
@@ -363,6 +361,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
