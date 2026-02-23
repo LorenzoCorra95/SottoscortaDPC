@@ -305,7 +305,7 @@ if st.button("Esegui analisi"):
         pre_intestazioni=[col for col in df_sott.columns if col not in intestazioni]
         
         indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
-        indicePreInt[indice for indice in [df_sott.columns.get_loc(i) for i in pre_intestazioni]
+        indicePreInt=[indice for indice in [df_sott.columns.get_loc(i) for i in pre_intestazioni]
         
         df_sott=df_sott.iloc[:,indicePreInt+indiceInt]
         
@@ -359,6 +359,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
