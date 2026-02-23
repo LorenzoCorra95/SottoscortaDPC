@@ -295,7 +295,6 @@ if st.button("Esegui analisi"):
         
         df_sott["StatoContratto"]=np.select(CategorieProdotto,Cat2,default="non classificato")
         
-        
         df_sott.info()
         
         # ridimensiono il df del sottoscorta e creo il sub-df con l'info dei soli prodotti da oridnare
@@ -361,6 +360,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
