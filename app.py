@@ -353,7 +353,7 @@ if st.button("Esegui analisi"):
             n_col = foglio.max_column
             foglio.cell(1, n_col+1, value="Nuova Autonomia")
             contaR=1
-
+        
             lettDataIn=get_column_letter(i_primaData)
             lettDataFin=get_column_letter(i_ultimaData)
             lettQtaDaOrdinare=get_column_letter(i_QtaDaOrdinare)
@@ -361,6 +361,7 @@ if st.button("Esegui analisi"):
             lettGiacenzaGruppoEq=get_column_letter(i_GiacenzaGruppoEq)
             lettDaCaricare=get_column_letter(i_DaCaricare)
             
+        
             for riga in foglio:
                 contaC=1
                 for cella in riga:
@@ -376,10 +377,10 @@ if st.button("Esegui analisi"):
                         cella.alignment=op.styles.Alignment(vertical="center",horizontal="center")
                     if contaR!=1 and contaC==n_col+1:
                         cella.value=f'=IFERROR(ROUND(({lettQtaDaOrdinare}{contaR}+'\
-                                f'{lettGiacenzaGruppoEq}{contaR}+{lettDaCaricare}{contaR})/{lettCmgGruppoEq}{contaR},0),"")'
+                                        f'{lettGiacenzaGruppoEq}{contaR}+{lettDaCaricare}{contaR})/{lettCmgGruppoEq}{contaR},0),"")'
                     contaC+=1
                 contaR+=1    
-    
+        
             foglio.column_dimensions.group(lettDataIn,lettDataFin,hidden=True)
 
         final_output = io.BytesIO()
@@ -393,6 +394,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
