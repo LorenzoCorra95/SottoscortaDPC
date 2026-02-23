@@ -310,7 +310,6 @@ if st.button("Esegui analisi"):
         # df_sott=df_sott.drop(["Forma Farmaceutica","Unità posologiche","ViaSommNe"],axis=1)
         
         df_sott=df_sott.sort_values(by=["Fornitore","Descrizione","Frigo","TipoAcq"])
-        df_sott=df_sott.drop(["Forma Farmaceutica", "Unità posologiche", "ViaSommNe"],axis=1)
         
         df_sott_ord=df_sott[(df_sott["QtaDaOrdinare"]>0) & 
                             (~df_sott["TipoAcq"].isin(["IN ESAURIMENTO","FUORI GARA"]))].sort_values(by=["Fornitore","Descrizione","Frigo"])
@@ -360,6 +359,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
