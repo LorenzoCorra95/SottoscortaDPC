@@ -4,6 +4,7 @@ import numpy as np
 import openpyxl as op
 import io
 import datetime as dt
+from openpyxl.utils import get_column_letter
 
 st.set_page_config(page_title="Analisi Sottoscorta DPC", layout="wide")
 st.title("📊 Analisi Sottoscorta - DPC")
@@ -102,6 +103,7 @@ if st.button("Esegui analisi"):
         df_carichi["Ordine"]=df_carichi["Ordine"].apply(lambda x: "DPC-20" + x[3:5] + "-" + str(int(x[5:])))
         
         # sistemo il formato del df sottoscorta
+
         df_sott=df_sott.fillna("")
         
         indici=[]
@@ -139,13 +141,13 @@ if st.button("Esegui analisi"):
             'Data Ordine Prevista',
             'Q.tà da Ordinare',
             col_el]
-
+        
         df_sott=df_sott.drop(elimina_indice,axis=1)
         
         df_sott.rename(columns={
             "Domanda Media Giornaliera":"Cmg",
             "Giacenza Totale":"Giacenza"},inplace=True)
-
+        
         df_sott["Minsan"]=df_sott["Minsan"].str.zfill(9)
         for val in ["Cmg","Giacenza"]:
             df_sott[val]=df_sott[val].apply(lambda x: float(x.replace(",",".")))
@@ -236,6 +238,7 @@ if st.button("Esegui analisi"):
             on="Minsan",
             how="left")
         
+        df_sott.columns
         df_sott["Nota ordine"]=df_sott.apply(lambda x: "" if x["DaCaricare"]==0 else x["Nota ordine"],axis=1)
         # per i record in cui il gruppo eq è nullo riporto il cmg e la giacenza = a quello del prodotto (e non = al gruppo eq)
         df_sott.loc[df_sott["GruppoEq"].isnull(),"CmgGruppoEq"]=df_sott["CmgProd"]
@@ -297,17 +300,40 @@ if st.button("Esegui analisi"):
         
         df_sott.info()
         
-        # ridimensiono il df del sottoscorta e creo il sub-df con l'info dei soli prodotti da oridnare
-        intestazioni=["Minsan","Descrizione","Fornitore","Pa","GruppoEq","Frigo","DaCaricare","Ordine","Data","Nota ordine","CmgProd","CmgGruppoEq","GiacenzaProd",
-                      "GiacenzaGruppoEq","Autonomia","TipoAcq","Gara","StatoContratto","QtaResidua","QtaDaOrdinare"]
-
-        pre_intestazioni=[col for col in df_sott.columns if col not in intestazioni]
-        
+        intestazioni = [
+            "Minsan", 
+            "Descrizione", 
+            "Fornitore", 
+            "Pa", 
+            "GruppoEq", 
+            "Autonomia", 
+            "QtaDaOrdinare", 
+            "CmgProd", 
+            "CmgGruppoEq", 
+            "GiacenzaProd", 
+            "GiacenzaGruppoEq", 
+            "DaCaricare", 
+            "Ordine", 
+            "Data", 
+            "Nota ordine", 
+            "Frigo", 
+            "TipoAcq", 
+            "Gara", 
+            "StatoContratto", 
+            "QtaResidua"
+        ]
         indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
-        indicePreInt=[indice for indice in [df_sott.columns.get_loc(i) for i in df_sott.columns if "2026" in i]]
+        indicePreInt=[indice for indice in [df_sott.columns.get_loc(i) for i in df_sott.columns if "2026" in i or "2025" in i]]
         
         df_sott=df_sott.iloc[:,indicePreInt+indiceInt]
-        # df_sott=df_sott.drop(["Forma Farmaceutica","Unità posologiche","ViaSommNe"],axis=1)
+        indiceDate=[indice for indice in [df_sott.columns.get_loc(i) for i in df_sott.columns if "2026" in i or "2025" in i]]
+        i_primaData=indiceDate[0]+1
+        i_ultimaData=indiceDate[-1]+1
+        i_QtaDaOrdinare=df_sott.columns.get_loc("QtaDaOrdinare")+1
+        i_CmgGruppoEq=df_sott.columns.get_loc("CmgGruppoEq")+1 
+        i_GiacenzaGruppoEq=df_sott.columns.get_loc("GiacenzaGruppoEq")+1
+        i_DaCaricare=df_sott.columns.get_loc("DaCaricare")+1
+        
         
         df_sott=df_sott.sort_values(by=["Fornitore","Descrizione","Frigo","TipoAcq"])
         
@@ -327,7 +353,14 @@ if st.button("Esegui analisi"):
             n_col = foglio.max_column
             foglio.cell(1, n_col+1, value="Nuova Autonomia")
             contaR=1
-    
+
+            lettDataIn=get_column_letter(i_primaData)
+            lettDataFin=get_column_letter(i_ultimaData)
+            lettQtaDaOrdinare=get_column_letter(i_QtaDaOrdinare)
+            lettCmgGruppoEq=get_column_letter(i_CmgGruppoEq)
+            lettGiacenzaGruppoEq=get_column_letter(i_GiacenzaGruppoEq)
+            lettDaCaricare=get_column_letter(i_DaCaricare)
+            
             for riga in foglio:
                 contaC=1
                 for cella in riga:
@@ -342,11 +375,12 @@ if st.button("Esegui analisi"):
                         cella.font=op.styles.Font(name="Calibri", size=12, bold=True)
                         cella.alignment=op.styles.Alignment(vertical="center",horizontal="center")
                     if contaR!=1 and contaC==n_col+1:
-                        cella.value=f'=IFERROR(ROUND((AH{contaR}+AB{contaR}+U{contaR})/Z{contaR},0),"")'
+                        cella.value=f'=IFERROR(ROUND(({lettQtaDaOrdinare}{contaR}+'\
+                                f'{lettGiacenzaGruppoEq}{contaR}+{lettDaCaricare}{contaR})/{lettCmgGruppoEq}{contaR},0),"")'
                     contaC+=1
                 contaR+=1    
     
-            foglio.column_dimensions.group("a","n",hidden=True)
+            foglio.column_dimensions.group(lettDataIn,lettDataFin,hidden=True)
 
         final_output = io.BytesIO()
         wb.save(final_output)
@@ -359,6 +393,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
