@@ -126,7 +126,7 @@ if st.button("Esegui analisi"):
         df_sott.dropna(axis=1, how='all', inplace=True)
         
         df_sott.info()
-        df_sott=df_sott.iloc[:,[0,1,2,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,28,29]]
+        # df_sott=df_sott.iloc[:,[0,1,2,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,28,29]]
         df_sott.rename(columns={
             "Domanda Media Giornaliera":"Cmg",
             "Giacenza Totale":"Giacenza"},inplace=True)
@@ -342,6 +342,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
