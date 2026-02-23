@@ -138,6 +138,9 @@ if st.button("Esegui analisi"):
             'Data StockOut Prevista',
             'Data Ordine Prevista',
             'Q.tà da Ordinare',
+            "Forma Farmaceutica",
+            "Unità posologiche",
+            "ViaSommNe",
             col_el]
 
         df_sott=df_sott.drop(elimina_indice,axis=1)
@@ -305,10 +308,10 @@ if st.button("Esegui analisi"):
         pre_intestazioni=[col for col in df_sott.columns if col not in intestazioni]
         
         indiceInt=[indice for indice in [df_sott.columns.get_loc(i) for i in intestazioni]]
-        indicePreInt=[indice for indice in [df_sott.columns.get_loc(i) for i in pre_intestazioni]]
+        indicePreInt=[indice for indice in [df_sott.columns.get_loc(i) for i in df_sott.columns if "2026" in i]]
         
         df_sott=df_sott.iloc[:,indicePreInt+indiceInt]
-        df_sott=df_sott.drop(["Forma Farmaceutica","Unità posologiche","ViaSommNe"],axis=1)
+        # df_sott=df_sott.drop(["Forma Farmaceutica","Unità posologiche","ViaSommNe"],axis=1)
         
         df_sott=df_sott.sort_values(by=["Fornitore","Descrizione","Frigo","TipoAcq"])
         
@@ -360,6 +363,7 @@ if st.button("Esegui analisi"):
             file_name="sottoscorta.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
 
 
 
